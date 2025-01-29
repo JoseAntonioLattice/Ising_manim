@@ -6,7 +6,8 @@ import random
 L = 10
 im = np.array(L)
 ip = np.array(L)
-eps = 0.8
+eps = 0.7
+beta = 0.5
 
 ip = [(i+1)%L for i in range(L)]
 im = [(i-1)%L for i in range(L)]
@@ -36,7 +37,21 @@ def energy(spin):
     
 
 
-class grid_arrow(Scene):
+class grid_arrow(ZoomedScene):
+    def __init__(self, **kwargs):
+        ZoomedScene.__init__(
+            self,
+            zoom_factor=0.3,
+            zoomed_display_height=3*eps,
+            zoomed_display_width=3*eps,
+            image_frame_stroke_width=20,
+            zoomed_camera_config={
+                "default_frame_stroke_width": 3,
+            },
+            **kwargs
+        )
+
+    
     def construct(self):
         '''x_a = np.arange(-3, 4)
         for x in x_a:
@@ -49,13 +64,13 @@ class grid_arrow(Scene):
         self.wait(0.5)
         '''
         samples = 10
-        spin = np.zeros((10,10))
-        hotstart(spin,10)
+        spin = np.zeros((L,L))
+        hotstart(spin,L)
         #spin[:,:] = 1
         def draw_lattice(s):
             group_arrow = VGroup()
-            for i in range(10):
-                for j in range(10):
+            for i in range(L):
+                for j in range(L):
                 #x_r = np.random.choice(x_a)
                 #y_r = np.random.choice(x_a)
                 #r = np.random.rand()
@@ -73,20 +88,29 @@ class grid_arrow(Scene):
                     #self.add(arr)
             return group_arrow
 
-
+        beta_text = MathTex(f"\\beta = {beta}").shift(3.5*UP)
+        self.add(beta_text)
         ar = draw_lattice(spin)
         self.add(ar)
+        self.wait(0.5)
         self.remove(ar)
 
-        for n in range(20):
+        for n in range(10):
             for i in range(L):
                 for j in range(L):
-                    metropolis(spin,1.0,[i,j])
+                    metropolis(spin,0.1,[i,j])
 
             ar = draw_lattice(spin)
             self.add(ar)
             self.wait(0.5)
             self.remove(ar)
         #self.add(xy_p, xy_arr)
-            
+        self.add(ar)
+        dot = Dot(point = [-3*eps,0,0], radius = 0.08, color = YELLOW)
+        self.add(dot)
+        self.wait(3)
+
+        self.activate_zooming(animate=False)
+        self.play(self.zoomed_camera.frame.animate.scale(4))
+        self.play(self.zoomed_camera.frame.animate.shift(3*eps * LEFT))
             #self.remove(xy_p, xy_arr)
