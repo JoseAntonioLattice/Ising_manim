@@ -247,3 +247,50 @@ class ising_metropolis(MovingCameraScene):
         
         self.play(Transform(prob_text3,prob3))
         self.wait(3)
+
+
+class configurations(Scene):
+    def construct(self):
+
+        samples = 10
+        spin = np.zeros((L,L))
+       
+        
+        
+        squares = VGroup()
+
+                
+        for j in [1,-1]:
+            for i in [-1, 0, 1]:
+                cir = Circle(1.5)
+                sq = Square(3)
+                hotstart(spin,L)
+                lat = draw_lattice2(spin).scale(3/L).move_to([0,0,0])
+                squares += sq
+                self.play(lat.animate.to_edge([i,j,0]),sq.animate.to_edge([i,j,0]), run_time = 2)
+        self.wait(3)
+
+
+def draw_lattice2(s):
+    group_arrow = VGroup()
+    for i in range(L):
+        for j in range(L):
+            #x_r = np.random.choice(x_a)
+            #y_r = np.random.choice(x_a)
+            #r = np.random.rand()
+            
+            if s[i,j] == 1:
+                color = RED
+                y_r_d = j + 0.5
+                arr = "UP" 
+            
+                
+            else:
+                color = BLUE
+                arr = "DOWN"
+                y_r_d = j - 0.5
+            
+            arr = Arrow(start = [i, j, 0], end = [i, y_r_d, 0],max_stroke_width_to_length_ratio = 55, buff = 3, color = color)
+            group_arrow += arr
+                        #self.add(arr)
+    return group_arrow
