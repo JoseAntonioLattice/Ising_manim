@@ -252,14 +252,12 @@ class ising_metropolis(MovingCameraScene):
 class configurations(Scene):
     def construct(self):
 
-        samples = 10
         spin = np.zeros((L,L))
-       
-        
         
         squares = VGroup()
+        confs = VGroup()
 
-                
+        k = 0
         for j in [1,-1]:
             for i in [-1, 0, 1]:
                 cir = Circle(1.5)
@@ -267,10 +265,35 @@ class configurations(Scene):
                 hotstart(spin,L)
                 lat = draw_lattice2(spin).scale(3/L).move_to([0,0,0])
                 squares += sq
-                self.play(lat.animate.to_edge([i,j,0]),sq.animate.to_edge([i,j,0]), run_time = 2)
-        self.wait(3)
+                confs += lat
+                self.play(FadeIn(confs[k]),FadeIn(squares[k]))
+                self.play(confs[k].animate.to_edge([i,j,0]),squares[k].animate.to_edge([i,j,0]), run_time = 2)
+                k +=1
+                
+        self.wait(2)
+        self.clear()
+        self.add(confs[0],squares[0])
+
+        
+        self.play(confs[0].animate.move_to([0,0,0]).scale(L/4),squares[0].animate.move_to([0,0,0]).scale(L/4),run_time = 3)
 
 
+class choose_point(Scene):
+    def construct(self):
+
+        spin = np.zeros((L,L))
+        hotstart(spin,L)
+        lat = draw_lattice2(spin).move_to([0,0,0]).scale(3/4)
+        square = Square(3*L/4).move_to([0,0,0])
+
+        self.add(lat,square)
+        self.wait()
+        for i in range(3):
+            for j in range(3): 
+                dot = Dot(point = [3/4*(i-0.5),3/4*(j-0.5),0] , radius = 0.08 ,color = YELLOW)
+                self.add(dot)
+                self.wait()
+                
 def draw_lattice2(s):
     group_arrow = VGroup()
     for i in range(L):
@@ -282,15 +305,42 @@ def draw_lattice2(s):
             if s[i,j] == 1:
                 color = RED
                 y_r_d = j + 0.5
-                arr = "UP" 
-            
-                
             else:
                 color = BLUE
-                arr = "DOWN"
                 y_r_d = j - 0.5
             
-            arr = Arrow(start = [i, j, 0], end = [i, y_r_d, 0],max_stroke_width_to_length_ratio = 55, buff = 3, color = color)
+            arr = Arrow(start = [i, j, 0], end = [i, y_r_d, 0],max_stroke_width_to_length_ratio = 55, buff = 1, color = color)
             group_arrow += arr
-                        #self.add(arr)
+                
     return group_arrow
+
+class pacman(Scene):
+    def construct(self):
+
+        square = Square(8)
+        rectangle = Rectangle(height = 8, width = 4,color=BLACK,fill_opacity=1).shift([6,0,0])
+        rect_left = Rectangle(height = 8, width = 4,color=BLACK,fill_opacity=1).shift([-6,0,0])
+
+        openmouth = AnnularSector(inner_radius = 0, outer_radius = 1, angle = 315*DEGREES, start_angle = 22.5*DEGREES).set_fill(YELLOW).set_stroke(color = WHITE, width = 1.4).scale(0.5)
+        closedmouth = Dot(radius = 0.5, color = YELLOW)
+        dot = Dot(radius = 0.5, color = YELLOW)
+        dot_left=dot.copy().shift([-8,0,0])
+        
+        self.add(rectangle,rect_left,square)
+        
+        #self.play(dot.animate.move_to([8,0,0]),dot_left.animate.move_to([0,0,0]),run_time = 3 )
+        dt = 0.1
+        t = 0.0
+        x = 0.0
+        v = 2.0
+        pacman = closedmouth.copy()
+        for i in range(30):
+            newpacman = pacman.copy().move_to([x,0,0])
+            self.add(pacman.move_to(newpacman))
+            self.wait(dt)
+            t += dt
+            x += v*dt
+            self.remove(pacman)
+            pacman = openmouth.copy() if i%2 == 0 else closedmouth.copy()
+            pacman.move_to(newpacman)
+            
