@@ -285,15 +285,51 @@ class choose_point(Scene):
         hotstart(spin,L)
         lat = draw_lattice2(spin).move_to([0,0,0]).scale(3/4)
         square = Square(3*L/4).move_to([0,0,0])
+        
 
         self.add(lat,square)
-        self.wait()
-        for i in range(3):
-            for j in range(3): 
+        self.wait(2)
+        text = Tex("Choose point lexicographically")
+        self.play(Write(text))
+        self.wait(2)
+        self.remove(text)
+        for j in np.linspace(-L/2+1,L/2,L):
+            for i in np.linspace(-L/2+1,L/2,L): 
                 dot = Dot(point = [3/4*(i-0.5),3/4*(j-0.5),0] , radius = 0.08 ,color = YELLOW)
                 self.add(dot)
-                self.wait()
-                
+                self.wait(0.1)
+                self.remove(dot)
+
+        self.wait(2)
+
+
+class choose_point_random(Scene):
+    def construct(self):
+
+        spin = np.zeros((L,L))
+        hotstart(spin,L)
+        lat = draw_lattice2(spin).move_to([0,0,0]).scale(3/4)
+        square = Square(3*L/4).move_to([0,0,0])
+        
+
+        self.add(lat,square)
+        self.wait(2)
+        text = Tex("..or choose point randomly")
+        self.play(Write(text))
+        self.wait(2)
+        self.remove(text)
+    
+        for x in range(L):
+            for y in range(L):
+                i = np.random.randint(L)-L/2+1
+                j = np.random.randint(L)-L/2+1
+                dot = Dot(point = [3/4*(i-0.5),3/4*(j-0.5),0] , radius = 0.08 ,color = YELLOW)
+                self.add(dot)
+                self.wait(0.1)
+                self.remove(dot)
+        
+
+        
 def draw_lattice2(s):
     group_arrow = VGroup()
     for i in range(L):
