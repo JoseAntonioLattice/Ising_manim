@@ -327,7 +327,75 @@ class choose_point_random(Scene):
                 self.add(dot)
                 self.wait(0.1)
                 self.remove(dot)
+
+
+class create_lattice(Scene):
+    def construct(self):
+
+        spin = np.zeros((L,L))
+        hotstart(spin,L)
+        lat = draw_lattice2(spin).move_to([0,0,0]).scale(3/4)
+        square = Square(3*L/4).move_to([0,0,0])
+
+        self.play(Create(square))
+        self.wait(2)
+        k = 0
+        lattice_points = VGroup()
+        for j in np.linspace(-L/2+1,L/2,L):
+            for i in np.linspace(-L/2+1,L/2,L): 
+                lattice_points += Dot(point = [3/4*(i-0.5),3/4*(j-0.5),0] , radius = 0.08 ,color = WHITE)
+
+        self.play(Create(lattice_points))
+        self.wait(2)
+        self.play(FadeOut(lattice_points),Create(lat))
+        self.wait(2)
         
+        
+
+class metropolis_step(MovingCameraScene):
+    def construct(self):
+        
+        spin = np.zeros((L,L))
+        hotstart(spin,L)
+        lat = draw_lattice2(spin).move_to([0,0,0]).scale(3/4)
+        square = Square(3*L/4).move_to([0,0,0])
+        point = 25
+        i = 3/4*(point//L - L/2+0.5)
+        j = 3/4*(point%L - L/2+0.5)
+        dot =  Dot(point = [i,j,0] , radius = 0.08 ,color = YELLOW)
+
+        nine_spins = VGroup(lat[point].copy(),lat[point+1].copy(),lat[point-1].copy(),lat[point+L].copy(),lat[point-L].copy(), \
+                            lat[point+L+1].copy(),lat[point+L-1].copy(),lat[point-L+1].copy(),lat[point-L-1].copy())
+
+        
+
+        self.add(square,nine_spins,lat)
+        self.wait()
+
+        
+
+        self.play(Create(dot))
+
+        self.wait(3)
+
+        
+        self.play(self.camera.frame.animate.scale(0.3).move_to([i,j,0]))
+
+        self.wait(2)
+        
+        
+        self.play(FadeOut(lat,square))
+        self.wait()
+        
+        self.play(Indicate(nine_spins[1],scale_factor=2.0),
+                  Indicate(nine_spins[2],scale_factor=2.0),
+                  Indicate(nine_spins[3],scale_factor=2.0),
+                  Indicate(nine_spins[4],scale_factor=2.0),run_time=3
+                  )
+        self.wait(3)
+
+        
+
 
         
 def draw_lattice2(s):
