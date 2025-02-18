@@ -385,7 +385,7 @@ class create_lattice(Scene):
         lat = draw_lattice2(spin).move_to([0,0,0]).scale(3/4)
         square = Square(3*L/4).move_to([0,0,0])
 
-        self.play(Create(square))
+        self.add(square)
         self.wait(2)
         k = 0
         lattice_points = VGroup()
@@ -440,11 +440,66 @@ class metropolis_step(MovingCameraScene):
                   Indicate(nine_spins[3],scale_factor=2.0),
                   Indicate(nine_spins[4],scale_factor=2.0),run_time=3
                   )
+        self.wait(2)
+
+        beta = 0.5
+        
+        beta_text = MathTex(f"\\beta = {beta}").shift([i+0.5,j+0.5,0]).scale(0.5)
+        DS_text = MathTex("\\Delta S = 2\\beta s_{i,j}( s_{i+1,j} +  s_{i-1,j} +  s_{i,j+1} + s_{i,j-1}) ").shift([-3*eps,-0.5*eps,0]).scale(0.3)
+        i = point//L
+        j = point%L
+        DS_text2 = MathTex(f"\\Delta S = 2({beta})({int(spin[i,j])}) (({int(spin[i+1,j])}) +  ({int(spin[i-1,j])}) +  ({int(spin[i,j+1])}) + ({int(spin[i,j-1])})) = {DS(spin,[i,j],beta)}").shift([-3*eps,-0.5*eps,0]).scale(0.3)
+
+        self.play(nine_spins.animate.shift(LEFT+0.5*UP).scale(0.5),dot.animate.shift(LEFT+0.5*UP).scale(0.5))
+        self.play(FadeIn(beta_text),FadeIn(DS_text))
+        self.wait(2)
+        self.play(TransformMatchingTex(DS_text,DS_text2))
         self.wait(3)
+     
+        prob_text = MathTex(f"p = \\exp(-\\Delta S)").shift([-3*eps,-eps,0]).scale(0.5)
+        prob_text2 = MathTex(f"p = \\exp({-DS(spin,[i,j],beta)})").shift([-3*eps,-eps,0]).scale(0.5)
+        prob_text3 = MathTex(f"p = {np.exp(-DS(spin,[i,j],beta)):1.4f}").shift([-3*eps,-eps,0]).scale(0.5)
+        
+        self.play(FadeIn(prob_text))
+        self.wait(2)
+
+        self.play(TransformMatchingTex(prob_text,prob_text2))
+        self.wait(3)
+        
+        self.play(TransformMatchingTex(prob_text2,prob_text3))
+        self.wait(3)
+        r = np.random.rand(20)
 
         
+        p = np.exp(-DS(spin,[i,j],beta))
+        for l in range(20):
+            text = MathTex(f"r = ",f"{r[l]:1.4f}",f"\\in [0,1)").shift([-1.8*eps,0,0]).scale(0.5)
+            self.add(text)
+            self.wait(0.2)
+            self.remove(text)
+        
+        self.add(text)
+        self.wait(2)
+        self.remove(DS_text2,text)
 
-
+        if r[19] < p:
+            prob3 =  MathTex(f"p = {p:1.4f} \\geq {r[19]:1.4f}").shift([-3*eps,-eps,0]).scale(0.5)
+            text = Tex("Accept the change").shift([-3*eps,-0.5*eps,0]).scale(0.5)
+            if nine_spins[0].get_color() == RED:
+                t2 = Indicate(nine_spins[0])#Tex("rojo").shift([-3*eps,-0.1*eps,0]).scale(0.5)
+            else:
+                t2 = Wiggle(nine_spins[0])#Tex("azul").shift([-3*eps,-0.1*eps,0]).scale(0.5)
+                        
+            self.play(Transform(prob_text3,prob3),Create(text),t2)
+            self.wait(3)
+        else:
+            prob3 =  MathTex(f"p = {p:1.4f} < {r[19]:1.4f}").shift([-3*eps,-eps,0]).scale(0.5)
+            text = Tex("Keep configuration").shift([-3*eps,-0.5*eps,0]).scale(0.5) 
+            t2 = Tex("puta").shift([-3*eps,-0.1*eps,0]).scale(0.5)
+            self.play(Transform(prob_text3,prob3),Create(text),Create(t2))
+            self.wait(3)
+       
+    
         
 def draw_lattice2(s):
     group_arrow = VGroup()
@@ -473,14 +528,23 @@ class pacman(Scene):
         closedmouth = Dot(radius = 0.5, color = YELLOW)
         dot = Dot(radius = 0.5, color = YELLOW)
         dot_left = dot.copy().shift([-8, 0, 0])
-        
+        text = Tex("Periodic boundary condictions in all directions")
         #self.play(dot.animate.move_to([8,0,0]),dot_left.animate.move_to([0,0,0]),run_time = 3 )
         dt = 0.1
         t = 0.0
         x = 0.0
         v = 2.0
 
+        
         square = Square(8)
+        self.play(Create(square), run_time=2)
+        self.wait(2)
+        self.play(Create(text))
+        self.wait(2)
+        self.remove(text)
+        self.play(Create(openmouth), runt_time=3)
+        self.wait()
+        self.remove(openmouth)
         rect_right = Rectangle(height = 8, width = 4, color = BLACK, fill_opacity = 1).shift([6, 0, 0])
         rect_left = Rectangle(height = 8, width = 4, color = BLACK, fill_opacity = 1).shift([-6, 0, 0])
         rect_up = Rectangle(height = 4, width = 8, color = BLACK, fill_opacity = 1).shift([0, 6, 0])
@@ -507,6 +571,7 @@ class pacman(Scene):
         openmouthup = openmouth.copy()
         pacman = openmouthup
         self.add(pacman,square)
+        self.wait(2)
         #self.remove(pacmanleft)
         y = 0
         t = 0
