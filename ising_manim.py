@@ -464,16 +464,10 @@ def draw_lattice2(s):
 class pacman(Scene):
     def construct(self):
 
-        square = Square(8)
-        rectangle = Rectangle(height = 8, width = 4,color=BLACK,fill_opacity=1).shift([6,0,0])
-        rect_left = Rectangle(height = 8, width = 4,color=BLACK,fill_opacity=1).shift([-6,0,0])
-
         openmouth = AnnularSector(inner_radius = 0, outer_radius = 1, angle = 315*DEGREES, start_angle = 22.5*DEGREES).set_fill(YELLOW).set_stroke(color = WHITE, width = 1.4).scale(0.5)
         closedmouth = Dot(radius = 0.5, color = YELLOW)
         dot = Dot(radius = 0.5, color = YELLOW)
-        dot_left=dot.copy().shift([-8,0,0])
-        
-        self.add(rectangle,rect_left,square)
+        dot_left = dot.copy().shift([-8, 0, 0])
         
         #self.play(dot.animate.move_to([8,0,0]),dot_left.animate.move_to([0,0,0]),run_time = 3 )
         dt = 0.1
@@ -490,4 +484,25 @@ class pacman(Scene):
             self.remove(pacman)
             pacman = openmouth.copy() if i%2 == 0 else closedmouth.copy()
             pacman.move_to(newpacman)
+
+        t = 0
+        y = 0
+        self.play(Rotate(pacman, angle = PI/2, rate_func = linear), run_time = 2)
+        for i in range(30):
+            newpacman = pacman.copy().move_to([0, y, 0])
+            self.add(pacman.move_to(newpacman))
+            self.wait(dt)
+            t += dt
+            x += v*dt
+            self.remove(pacman)
+            pacman = openmouth.copy() if i%2 == 0 else closedmouth.copy()
+            pacman.move_to(newpacman)
             
+        square = Square(8)
+        rect_right = Rectangle(height = 8, width = 4, color = BLACK, fill_opacity = 1).shift([6, 0, 0])
+        rect_left = Rectangle(height = 8, width = 4, color = BLACK, fill_opacity = 1).shift([-6, 0, 0])
+        rect_up = Rectangle(height = 4, width = 8, color = BLACK, fill_opacity = 1).shift([0, 6, 0])
+        rect_down = Rectangle(height = 4, width = 8, color = BLACK, fill_opacity = 1).shift([0, -6, 0])
+
+        self.add(rect_right, rect_left, rect_up, rect_down, square)
+        
