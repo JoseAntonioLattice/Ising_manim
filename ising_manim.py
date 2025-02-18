@@ -271,7 +271,7 @@ class configurations(Scene):
                 k +=1
                 
         self.wait(2)
-        self.play(FadeOut(squares, confs, shift = UP))
+        self.play(squares.animate.move_to(10*UP), confs.animate.move_to(10*UP))
 
         squares_2 = VGroup()
         confs_2 = VGroup()
@@ -296,17 +296,9 @@ class configurations(Scene):
         self.play(confs_2[k_2].animate.to_edge([-1, -1, 0]),squares_2[k_2].animate.to_edge([-1, -1, 0]), run_time = 2)
         k_2 +=1
 
-        cont = MathTex('\\dotsb', font_size = 120)
-        cont.shift(DOWN)
-        inf = MathTex('\\infty', font_size = 120)
-        inf.shift(2*DOWN)
         
-        VGroup(cont, inf)
         
-        self.play(FadeIn(cont))
-        self.wait()
-        
-        self.play(FadeIn(inf), shift = DOWN)
+        #self.play(FadeIn(inf), shift = DOWN)
         
         sq_2 = Square(3)
         hotstart(spin,L)
@@ -314,12 +306,25 @@ class configurations(Scene):
         squares_2 += sq_2
         confs_2 += lat_2
         self.play(FadeIn(confs_2[k_2]),FadeIn(squares_2[k_2]))
-        self.play(confs_2[k_2].animate.to_edge([1, -1, 0]),squares_2[k_2].animate.to_edge([1, -1, 0]), run_time = 2)
+        self.play(confs_2[k_2].animate.to_edge([0, -1, 0]),squares_2[k_2].animate.to_edge([0, -1, 0]), run_time = 2)
         k_2 +=1
-            
-        self.add(confs_2[2],squares_2[2])
 
-        self.play(confs[0].animate.move_to([0,0,0]).scale(L/4),squares[0].animate.move_to([0,0,0]).scale(L/4),run_time = 3)
+        cont = MathTex('\\dotsb', font_size = 120)
+        cont.to_edge([1,-1,0])
+        #inf = MathTex('\\infty', font_size = 120)
+        #inf.shift(2*DOWN)
+        
+        #VGroup(cont, inf)
+        
+        self.play(FadeIn(cont))
+        self.wait()
+
+        cf = confs_2[0].copy()
+        sqf = squares_2[0].copy()
+        
+        self.add(cf,sqf)
+        self.play(FadeOut(squares_2,confs_2,cont))
+        self.play(cf.animate.move_to([0,0,0]).scale(L/4),sqf.animate.move_to([0,0,0]).scale(L/4),run_time = 3)
 
 class choose_point(Scene):
     def construct(self):
@@ -474,35 +479,52 @@ class pacman(Scene):
         t = 0.0
         x = 0.0
         v = 2.0
-        pacman = closedmouth.copy()
-        for i in range(30):
-            newpacman = pacman.copy().move_to([x,0,0])
-            self.add(pacman.move_to(newpacman))
-            self.wait(dt)
-            t += dt
-            x += v*dt
-            self.remove(pacman)
-            pacman = openmouth.copy() if i%2 == 0 else closedmouth.copy()
-            pacman.move_to(newpacman)
 
-        t = 0
-        y = 0
-        self.play(Rotate(pacman, angle = PI/2, rate_func = linear), run_time = 2)
-        for i in range(30):
-            newpacman = pacman.copy().move_to([0, y, 0])
-            self.add(pacman.move_to(newpacman))
-            self.wait(dt)
-            t += dt
-            x += v*dt
-            self.remove(pacman)
-            pacman = openmouth.copy() if i%2 == 0 else closedmouth.copy()
-            pacman.move_to(newpacman)
-            
         square = Square(8)
         rect_right = Rectangle(height = 8, width = 4, color = BLACK, fill_opacity = 1).shift([6, 0, 0])
         rect_left = Rectangle(height = 8, width = 4, color = BLACK, fill_opacity = 1).shift([-6, 0, 0])
         rect_up = Rectangle(height = 4, width = 8, color = BLACK, fill_opacity = 1).shift([0, 6, 0])
         rect_down = Rectangle(height = 4, width = 8, color = BLACK, fill_opacity = 1).shift([0, -6, 0])
-
-        self.add(rect_right, rect_left, rect_up, rect_down, square)
         
+        pacman = closedmouth.copy()
+        pacmanleft = pacman.copy().move_to([-8,0,0])
+        for i in range(40):
+            newpacman = pacman.copy().move_to([x,0,0])
+            newpacmanl = pacman.copy().move_to([-8 + x,0,0])
+
+            self.add(pacman.move_to(newpacman),pacmanleft.move_to(newpacmanl))
+            self.add(rect_right, rect_left, rect_up, rect_down)
+            self.add(square)
+            self.wait(dt)
+            t += dt
+            x += v*dt
+            self.remove(pacman,pacmanleft,square,rect_right, rect_left, rect_up, rect_down)
+            pacman = openmouth.copy() if i%2 == 0 else closedmouth.copy()
+            pacmanleft = openmouth.copy() if i%2 == 0 else closedmouth.copy()
+            pacman.move_to(newpacman)
+            pacmanleft.move_to(newpacmanl)
+
+        openmouthup = openmouth.copy()
+        pacman = openmouthup
+        self.add(pacman,square)
+        #self.remove(pacmanleft)
+        y = 0
+        t = 0
+        self.play(Rotate(pacman, angle = PI/2, rate_func = linear), run_time = 1)
+
+        pacmand = pacman.copy().move_to([0,-8,0])
+        for i in range(40):
+            newpacman = pacman.copy().move_to([0,y,0])
+            newpacmand = pacman.copy().move_to([0,y-8,0])
+
+            self.add(pacman.move_to(newpacman),pacmand.move_to(newpacmand))
+            self.add(rect_right, rect_left, rect_up, rect_down)
+            self.add(square)
+            self.wait(dt)
+            t += dt 
+            y += v*dt
+            self.remove(pacman,pacmand,square,rect_right, rect_left, rect_up, rect_down)
+            pacman = openmouthup.copy() if i%2 == 0 else closedmouth.copy()
+            pacmand = openmouthup.copy() if i%2 == 0 else closedmouth.copy()
+            pacman.move_to(newpacman)
+            pacmand.move_to(newpacmand)
