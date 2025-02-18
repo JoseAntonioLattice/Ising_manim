@@ -271,12 +271,55 @@ class configurations(Scene):
                 k +=1
                 
         self.wait(2)
-        self.clear()
-        self.add(confs[0],squares[0])
+        self.play(FadeOut(squares, confs, shift = UP))
 
+        squares_2 = VGroup()
+        confs_2 = VGroup()
+
+        k_2 = 0
+        for i in [-1, 0, 1]:
+            sq_2 = Square(3)
+            hotstart(spin,L)
+            lat_2 = draw_lattice2(spin).scale(3/L).move_to([0,0,0])
+            squares_2 += sq_2
+            confs_2 += lat_2
+            self.play(FadeIn(confs_2[k_2]),FadeIn(squares_2[k_2]))
+            self.play(confs_2[k_2].animate.to_edge([i, 1, 0]),squares_2[k_2].animate.to_edge([i, 1, 0]), run_time = 2)
+            k_2 +=1
+
+        sq_2 = Square(3)
+        hotstart(spin,L)
+        lat_2 = draw_lattice2(spin).scale(3/L).move_to([0,0,0])
+        squares_2 += sq_2
+        confs_2 += lat_2
+        self.play(FadeIn(confs_2[k_2]),FadeIn(squares_2[k_2]))
+        self.play(confs_2[k_2].animate.to_edge([-1, -1, 0]),squares_2[k_2].animate.to_edge([-1, -1, 0]), run_time = 2)
+        k_2 +=1
+
+        cont = MathTex('\\dotsb', font_size = 120)
+        cont.shift(DOWN)
+        inf = MathTex('\\infty', font_size = 120)
+        inf.shift(2*DOWN)
         
-        self.play(confs[0].animate.move_to([0,0,0]).scale(L/4),squares[0].animate.move_to([0,0,0]).scale(L/4),run_time = 3)
+        VGroup(cont, inf)
+        
+        self.play(FadeIn(cont))
+        self.wait()
+        
+        self.play(FadeIn(inf), shift = DOWN)
+        
+        sq_2 = Square(3)
+        hotstart(spin,L)
+        lat_2 = draw_lattice2(spin).scale(3/L).move_to([0,0,0])
+        squares_2 += sq_2
+        confs_2 += lat_2
+        self.play(FadeIn(confs_2[k_2]),FadeIn(squares_2[k_2]))
+        self.play(confs_2[k_2].animate.to_edge([1, -1, 0]),squares_2[k_2].animate.to_edge([1, -1, 0]), run_time = 2)
+        k_2 +=1
+            
+        self.add(confs_2[2],squares_2[2])
 
+        self.play(confs[0].animate.move_to([0,0,0]).scale(L/4),squares[0].animate.move_to([0,0,0]).scale(L/4),run_time = 3)
 
 class choose_point(Scene):
     def construct(self):
