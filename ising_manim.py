@@ -482,21 +482,25 @@ class metropolis_step(MovingCameraScene):
         self.wait(2)
         self.remove(DS_text2,text)
 
+        i = 3/4*(point//L - L/2+0.5)
+        j = 3/4*(point%L - L/2+0.5)
+        proposal = Rotate(nine_spins[0],angle=PI,about_point=dot.get_center())
         if r[19] < p:
             prob3 =  MathTex(f"p = {p:1.4f} \\geq {r[19]:1.4f}").shift([-3*eps,-eps,0]).scale(0.5)
             text = Tex("Accept the change").shift([-3*eps,-0.5*eps,0]).scale(0.5)
             if nine_spins[0].get_color() == RED:
                 t2 = Indicate(nine_spins[0])#Tex("rojo").shift([-3*eps,-0.1*eps,0]).scale(0.5)
+                nine_spins[0].set_color(BLUE)
             else:
                 t2 = Wiggle(nine_spins[0])#Tex("azul").shift([-3*eps,-0.1*eps,0]).scale(0.5)
-                        
-            self.play(Transform(prob_text3,prob3),Create(text),t2)
+                nine_spins[0].set_color(RED)        
+            self.play(Transform(prob_text3,prob3),Create(text),proposal)
             self.wait(3)
         else:
             prob3 =  MathTex(f"p = {p:1.4f} < {r[19]:1.4f}").shift([-3*eps,-eps,0]).scale(0.5)
             text = Tex("Keep configuration").shift([-3*eps,-0.5*eps,0]).scale(0.5) 
-            t2 = Tex("puta").shift([-3*eps,-0.1*eps,0]).scale(0.5)
-            self.play(Transform(prob_text3,prob3),Create(text),Create(t2))
+            #t2 = Tex("puta").shift([-3*eps,-0.1*eps,0]).scale(0.5)
+            self.play(Transform(prob_text3,prob3),Create(text))
             self.wait(3)
        
     
