@@ -9,6 +9,8 @@ ip = np.array(L)
 eps = 0.7
 beta = 0.5
 
+Nconfs=11
+
 ip = [(i+1)%L for i in range(L)]
 im = [(i-1)%L for i in range(L)]
 
@@ -252,8 +254,8 @@ class ising_metropolis(MovingCameraScene):
 class configurations(Scene):
     def construct(self):
 
-        spin = np.zeros((L,L))
-        
+        spin = np.zeros((Nconfs,L,L))
+        spin = np.load("configurations.npy")
         squares = VGroup()
         confs = VGroup()
 
@@ -262,8 +264,8 @@ class configurations(Scene):
             for i in [-1, 0, 1]:
                 cir = Circle(1.5)
                 sq = Square(3)
-                hotstart(spin,L)
-                lat = draw_lattice2(spin).scale(3/L).move_to([0,0,0])
+                #hotstart(spin,L)
+                lat = draw_lattice2(spin[k]).scale(3/L).move_to([0,0,0])
                 squares += sq
                 confs += lat
                 self.play(FadeIn(confs[k]),FadeIn(squares[k]))
@@ -279,37 +281,40 @@ class configurations(Scene):
         k_2 = 0
         for i in [-1, 0, 1]:
             sq_2 = Square(3)
-            hotstart(spin,L)
-            lat_2 = draw_lattice2(spin).scale(3/L).move_to([0,0,0])
+            #hotstart(spin,L)
+            lat_2 = draw_lattice2(spin[k]).scale(3/L).move_to([0,0,0])
             squares_2 += sq_2
             confs_2 += lat_2
             self.play(FadeIn(confs_2[k_2]),FadeIn(squares_2[k_2]))
             self.play(confs_2[k_2].animate.to_edge([i, 1, 0]),squares_2[k_2].animate.to_edge([i, 1, 0]), run_time = 2)
             k_2 +=1
+            k+=1
 
         sq_2 = Square(3)
         hotstart(spin,L)
-        lat_2 = draw_lattice2(spin).scale(3/L).move_to([0,0,0])
+        lat_2 = draw_lattice2(spin[k]).scale(3/L).move_to([0,0,0])
         squares_2 += sq_2
         confs_2 += lat_2
         self.play(FadeIn(confs_2[k_2]),FadeIn(squares_2[k_2]))
         self.play(confs_2[k_2].animate.to_edge([-1, -1, 0]),squares_2[k_2].animate.to_edge([-1, -1, 0]), run_time = 2)
         k_2 +=1
+        k+=1
 
         
         
         #self.play(FadeIn(inf), shift = DOWN)
         
         sq_2 = Square(3)
-        hotstart(spin,L)
-        lat_2 = draw_lattice2(spin).scale(3/L).move_to([0,0,0])
+        #hotstart(spin,L)
+        lat_2 = draw_lattice2(spin[k]).scale(3/L).move_to([0,0,0])
         squares_2 += sq_2
         confs_2 += lat_2
         self.play(FadeIn(confs_2[k_2]),FadeIn(squares_2[k_2]))
         self.play(confs_2[k_2].animate.to_edge([0, -1, 0]),squares_2[k_2].animate.to_edge([0, -1, 0]), run_time = 2)
         k_2 +=1
+        k+=1
 
-        cont = MathTex('\\dotsb', font_size = 120)
+        cont = MathTex('\\cdots', font_size = 120)
         cont.to_edge([1,-1,0])
         #inf = MathTex('\\infty', font_size = 120)
         #inf.shift(2*DOWN)
@@ -330,7 +335,8 @@ class choose_point(Scene):
     def construct(self):
 
         spin = np.zeros((L,L))
-        hotstart(spin,L)
+        confs = np.load("configurations.npy")
+        spin = confs[6]
         lat = draw_lattice2(spin).move_to([0,0,0]).scale(3/4)
         square = Square(3*L/4).move_to([0,0,0])
         
@@ -355,7 +361,9 @@ class choose_point_random(Scene):
     def construct(self):
 
         spin = np.zeros((L,L))
-        hotstart(spin,L)
+        confs = np.load("configurations.npy")
+        spin = confs[6]
+       
         lat = draw_lattice2(spin).move_to([0,0,0]).scale(3/4)
         square = Square(3*L/4).move_to([0,0,0])
         
@@ -381,7 +389,9 @@ class create_lattice(Scene):
     def construct(self):
 
         spin = np.zeros((L,L))
-        hotstart(spin,L)
+        
+        confs = np.load("configurations.npy")
+        spin = confs[0]
         lat = draw_lattice2(spin).move_to([0,0,0]).scale(3/4)
         square = Square(3*L/4).move_to([0,0,0])
 
@@ -404,10 +414,12 @@ class metropolis_step(MovingCameraScene):
     def construct(self):
         
         spin = np.zeros((L,L))
-        hotstart(spin,L)
+        
+        confs = np.load("configurations.npy")
+        spin = confs[6]
         lat = draw_lattice2(spin).move_to([0,0,0]).scale(3/4)
         square = Square(3*L/4).move_to([0,0,0])
-        point = 25
+        point = 38
         i = 3/4*(point//L - L/2+0.5)
         j = 3/4*(point%L - L/2+0.5)
         dot =  Dot(point = [i,j,0] , radius = 0.08 ,color = YELLOW)
@@ -445,10 +457,13 @@ class metropolis_step(MovingCameraScene):
         beta = 0.5
         
         beta_text = MathTex(f"\\beta = {beta}").shift([i+0.5,j+0.5,0]).scale(0.5)
-        DS_text = MathTex("\\Delta S = 2\\beta s_{i,j}( s_{i+1,j} +  s_{i-1,j} +  s_{i,j+1} + s_{i,j-1}) ").shift([-3*eps,-0.5*eps,0]).scale(0.3)
+        DS_text = MathTex("\\Delta S = 2\\beta s_{i,j}( s_{i+1,j} +  s_{i-1,j} +  s_{i,j+1} + s_{i,j-1}) ").shift([i-0.1,j-0.5,0]).scale(0.3)
+        
+      
         i = point//L
         j = point%L
-        DS_text2 = MathTex(f"\\Delta S = 2({beta})({int(spin[i,j])}) (({int(spin[i+1,j])}) +  ({int(spin[i-1,j])}) +  ({int(spin[i,j+1])}) + ({int(spin[i,j-1])})) = {DS(spin,[i,j],beta)}").shift([-3*eps,-0.5*eps,0]).scale(0.3)
+
+        DS_text2 = MathTex(f"\\Delta S = 2({beta})({int(spin[i,j])}) (({int(spin[i+1,j])}) +  ({int(spin[i-1,j])}) +  ({int(spin[i,j+1])}) + ({int(spin[i,j-1])})) = {DS(spin,[i,j],beta)}").shift(DS_text.get_center()).scale(0.3)
 
         self.play(nine_spins.animate.shift(LEFT+0.5*UP).scale(0.5),dot.animate.shift(LEFT+0.5*UP).scale(0.5))
         self.play(FadeIn(beta_text),FadeIn(DS_text))
@@ -456,9 +471,9 @@ class metropolis_step(MovingCameraScene):
         self.play(TransformMatchingTex(DS_text,DS_text2))
         self.wait(3)
      
-        prob_text = MathTex(f"p = \\exp(-\\Delta S)").shift([-3*eps,-eps,0]).scale(0.5)
-        prob_text2 = MathTex(f"p = \\exp({-DS(spin,[i,j],beta)})").shift([-3*eps,-eps,0]).scale(0.5)
-        prob_text3 = MathTex(f"p = {np.exp(-DS(spin,[i,j],beta)):1.4f}").shift([-3*eps,-eps,0]).scale(0.5)
+        prob_text = MathTex(f"p = \\exp(-\\Delta S)").shift(DS_text.get_center()+0.5*DOWN).scale(0.5)
+        prob_text2 = MathTex(f"p = \\exp({-DS(spin,[i,j],beta)})").shift(prob_text.get_center()).scale(0.5)
+        prob_text3 = MathTex(f"p = {np.exp(-DS(spin,[i,j],beta)):1.4f}").shift(prob_text.get_center()).scale(0.5)
         
         self.play(FadeIn(prob_text))
         self.wait(2)
@@ -473,7 +488,7 @@ class metropolis_step(MovingCameraScene):
         
         p = np.exp(-DS(spin,[i,j],beta))
         for l in range(20):
-            text = MathTex(f"r = ",f"{r[l]:1.4f}",f"\\in [0,1)").shift([-1.8*eps,0,0]).scale(0.5)
+            text = MathTex(f"r = ",f"{r[l]:1.4f}",f"\\in [0,1)").shift(beta_text.get_center()+0.5*DOWN).scale(0.5)
             self.add(text)
             self.wait(0.2)
             self.remove(text)
@@ -486,8 +501,8 @@ class metropolis_step(MovingCameraScene):
         j = 3/4*(point%L - L/2+0.5)
         proposal = Rotate(nine_spins[0],angle=PI,about_point=dot.get_center())
         if r[19] < p:
-            prob3 =  MathTex(f"p = {p:1.4f} \\geq {r[19]:1.4f}").shift([-3*eps,-eps,0]).scale(0.5)
-            text = Tex("Accept the change").shift([-3*eps,-0.5*eps,0]).scale(0.5)
+            prob3 =  MathTex(f"p = {p:1.4f} \\geq {r[19]:1.4f}").shift(prob_text.get_center()).scale(0.5)
+            text = Tex("Accept the change").shift(prob_text.get_center()+0.5*UP).scale(0.5)
             if nine_spins[0].get_color() == RED:
                 t2 = Indicate(nine_spins[0])#Tex("rojo").shift([-3*eps,-0.1*eps,0]).scale(0.5)
                 nine_spins[0].set_color(BLUE)
@@ -497,8 +512,8 @@ class metropolis_step(MovingCameraScene):
             self.play(Transform(prob_text3,prob3),Create(text),proposal)
             self.wait(3)
         else:
-            prob3 =  MathTex(f"p = {p:1.4f} < {r[19]:1.4f}").shift([-3*eps,-eps,0]).scale(0.5)
-            text = Tex("Keep configuration").shift([-3*eps,-0.5*eps,0]).scale(0.5) 
+            prob3 =  MathTex(f"p = {p:1.4f} < {r[19]:1.4f}").shift(prob_text.get_center()).scale(0.5)
+            text = Tex("Keep configuration").shift(prob_text.get_center()+0.5*UP).scale(0.5) 
             #t2 = Tex("puta").shift([-3*eps,-0.1*eps,0]).scale(0.5)
             self.play(Transform(prob_text3,prob3),Create(text))
             self.wait(3)

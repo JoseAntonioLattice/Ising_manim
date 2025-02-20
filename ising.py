@@ -1,12 +1,12 @@
 from lua import *
 import matplotlib.pyplot as plt
-from IPython import display
+#from IPython import display
 import time
 from matplotlib.animation import FuncAnimation, PillowWriter
 
 
 
-Nthermalization = 100
+Nthermalization = 10
 n_array = np.arange(0,Nthermalization)
 beta = 2.0
 
@@ -15,16 +15,19 @@ dim = L
 spin = np.zeros((L,L))
 
 hotstart(spin,L)
+
 plt.imshow(spin)
 #plt.show()
-grid = np.zeros((frames,dim, dim))
+grid = np.zeros((Nthermalization+1,dim, dim))
+grid[0] = spin
 pause_time = 0.1
 energy_array = []
 for n in range(Nthermalization):
-    for i in range(L):
-        for j in range(L):
-            metropolis(spin,beta,[i,j])
-    grid[n] = spin 
+    #for i in range(L):
+    #    for j in range(L):
+    #        metropolis(spin,beta,[i,j])
+    hotstart(spin,L)
+    grid[n+1] = spin 
     '''plt.imshow(spin)
     plt.xticks([])
     plt.yticks([])
@@ -35,6 +38,7 @@ for n in range(Nthermalization):
     plt.savefig("image_%03d.png" %n)'''
 
 
+np.save('configurations.npy',grid)
 
 
 def animate(i):
@@ -43,7 +47,7 @@ def animate(i):
     im = ax.imshow(grid[i], cmap = "bwr")
 
     return [im]
-
+'''
 fig, ax = plt.subplots()
 ax.get_xaxis().set_ticks([])
 ax.get_yaxis().set_ticks([])
@@ -51,8 +55,6 @@ ax.get_yaxis().set_ticks([])
 ani = FuncAnimation(fig, animate, frames = frames, interval = 200, blit = True)
 ani.save("l_Ising_2.gif", writer = "pillow", fps = 5)
 
-    
-'''
 print(energy_array)        
 plt.plot(n_array,energy_array)
 plt.show()
