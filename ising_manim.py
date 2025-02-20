@@ -532,40 +532,66 @@ class pacman(Scene):
         closedmouth = Dot(radius = 0.5, color = YELLOW)
         dot = Dot(radius = 0.5, color = YELLOW)
         dot_left = dot.copy().shift([-8, 0, 0])
-        text = Tex("Periodic boundary condictions in all directions")
+        text = Tex("Periodic boundary conditions in all directions")
         #self.play(dot.animate.move_to([8,0,0]),dot_left.animate.move_to([0,0,0]),run_time = 3 )
+        text2 = Tex("Create lattice")
+        square = Square(8)
+        rect_right = Rectangle(height = 8, width = 4, color = BLACK, fill_opacity = 1).shift([6, 0, 0])
+        rect_left = Rectangle(height = 8, width = 4, color = BLACK, fill_opacity = 1).shift([-6, 0, 0])
+        rect_up = Rectangle(height = 4, width = 8, color = BLACK, fill_opacity = 1).shift([0, 6, 0])
+        rect_down = Rectangle(height = 4, width = 8, color = BLACK, fill_opacity = 1).shift([0, -6, 0])
+        box = Rectangle(color = BLACK,width=text.width,height=text.height,fill_opacity=1)
+        box.surround(text)
+        self.play(Create(text2))
+        self.play(Create(square), run_time=2)
+        self.wait(2)
+        self.play(FadeOut(text2))
+      
+
+        lattice_points = VGroup()
+        for j in np.linspace(-3.5, 3.5, 7):
+            for i in np.linspace(-3.5, 3.5, 7): 
+                lattice_points += Dot(point = [i, j, 0] , radius = 0.1, color = WHITE)
+
+        self.play(Create(lattice_points))
+        #self.add(rect_right, rect_left, rect_up, rect_down)
+        self.wait(2)
+        self.add(box)
+        self.play(Create(text))
+        self.wait(2)
+        self.remove(text,box)
+        
+        self.play(FadeOut(lattice_points[24]),Create(openmouth), runt_time = 1)
+        self.wait()
+        self.remove(openmouth)
+        
+        pacman = closedmouth.copy()
+        pacmanleft = pacman.copy().move_to([-8,0,0])
+
         dt = 0.1
         t = 0.0
         x = 0.0
         v = 2.0
 
+        tp_ep_x = [0.6, 1.2, 1.8]
+        tn_ep_x = [2.4, 3.0, 3.6]
+        epp_x = 1
+        epn_x = 3       
         
-        square = Square(8)
-        self.play(Create(square), run_time=2)
-        self.wait(2)
-        self.play(Create(text))
-        self.wait(2)
-        self.remove(text)
-        self.play(Create(openmouth), runt_time=3)
-        self.wait()
-        self.remove(openmouth)
-        rect_right = Rectangle(height = 8, width = 4, color = BLACK, fill_opacity = 1).shift([6, 0, 0])
-        rect_left = Rectangle(height = 8, width = 4, color = BLACK, fill_opacity = 1).shift([-6, 0, 0])
-        rect_up = Rectangle(height = 4, width = 8, color = BLACK, fill_opacity = 1).shift([0, 6, 0])
-        rect_down = Rectangle(height = 4, width = 8, color = BLACK, fill_opacity = 1).shift([0, -6, 0])
-        
-        pacman = closedmouth.copy()
-        pacmanleft = pacman.copy().move_to([-8,0,0])
         for i in range(40):
             newpacman = pacman.copy().move_to([x,0,0])
             newpacmanl = pacman.copy().move_to([-8 + x,0,0])
 
-            self.add(pacman.move_to(newpacman),pacmanleft.move_to(newpacmanl))
+            self.add(pacman.move_to(newpacman),pacmanleft.move_to(newpacmanl)) 
             self.add(rect_right, rect_left, rect_up, rect_down)
             self.add(square)
             self.wait(dt)
             t += dt
             x += v*dt
+            self.remove(lattice_points[24 + epp_x]) if round(t, 1) in tp_ep_x else None
+            epp_x += 1 if round(t, 1) in tp_ep_x else 0
+            self.remove(lattice_points[24 - epn_x]) if round(t, 1) in tn_ep_x else None
+            epn_x -= 1 if round(t, 1) in tn_ep_x else 0
             self.remove(pacman,pacmanleft,square,rect_right, rect_left, rect_up, rect_down)
             pacman = openmouth.copy() if i%2 == 0 else closedmouth.copy()
             pacmanleft = openmouth.copy() if i%2 == 0 else closedmouth.copy()
@@ -575,12 +601,20 @@ class pacman(Scene):
         openmouthup = openmouth.copy()
         pacman = openmouthup
         self.add(pacman,square)
-        self.wait(2)
+    
+        
         #self.remove(pacmanleft)
         y = 0
         t = 0
-        self.play(Rotate(pacman, angle = PI/2, rate_func = linear), run_time = 1)
 
+        tp_ep_y = [0.6, 1.2, 1.8]
+        tn_ep_y = [2.4, 3.0, 3.6]
+        epp_y = 7
+        epn_y = 21
+        
+        self.play(Rotate(pacman, angle = PI/2, rate_func = linear))
+        
+        
         pacmand = pacman.copy().move_to([0,-8,0])
         for i in range(40):
             newpacman = pacman.copy().move_to([0,y,0])
@@ -592,8 +626,20 @@ class pacman(Scene):
             self.wait(dt)
             t += dt 
             y += v*dt
+            self.remove(lattice_points[24 + epp_y]) if round(t, 1) in tp_ep_y else None
+            epp_y += 7 if round(t, 1) in tp_ep_y else 0
+            self.remove(lattice_points[24 - epn_y]) if round(t, 1) in tn_ep_y else None
+            epn_y -= 7 if round(t, 1) in tn_ep_y else 0
+            self.remove(pacman,pacmanleft,square,rect_right, rect_left, rect_up, rect_down)
             self.remove(pacman,pacmand,square,rect_right, rect_left, rect_up, rect_down)
             pacman = openmouthup.copy() if i%2 == 0 else closedmouth.copy()
             pacmand = openmouthup.copy() if i%2 == 0 else closedmouth.copy()
             pacman.move_to(newpacman)
             pacmand.move_to(newpacmand)
+
+        self.add(openmouthup,square)
+        self.wait(2)
+        
+        self.play(FadeOut(openmouthup))
+        self.clear()
+
