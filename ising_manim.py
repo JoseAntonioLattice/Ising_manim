@@ -528,20 +528,21 @@ class pacman(Scene):
         closedmouth = Dot(radius = 0.5, color = YELLOW)
         dot = Dot(radius = 0.5, color = YELLOW)
         dot_left = dot.copy().shift([-8, 0, 0])
-        text = Tex("Periodic boundary condictions in all directions")
+        text = Tex("Periodic boundary conditions in all directions")
         #self.play(dot.animate.move_to([8,0,0]),dot_left.animate.move_to([0,0,0]),run_time = 3 )
-        
+        text2 = Tex("Create lattice")
         square = Square(8)
         rect_right = Rectangle(height = 8, width = 4, color = BLACK, fill_opacity = 1).shift([6, 0, 0])
         rect_left = Rectangle(height = 8, width = 4, color = BLACK, fill_opacity = 1).shift([-6, 0, 0])
         rect_up = Rectangle(height = 4, width = 8, color = BLACK, fill_opacity = 1).shift([0, 6, 0])
         rect_down = Rectangle(height = 4, width = 8, color = BLACK, fill_opacity = 1).shift([0, -6, 0])
-        
+        box = Rectangle(color = BLACK,width=text.width,height=text.height,fill_opacity=1)
+        box.surround(text)
+        self.play(Create(text2))
         self.play(Create(square), run_time=2)
         self.wait(2)
-        self.play(Create(text))
-        self.wait(2)
-        self.remove(text)
+        self.play(FadeOut(text2))
+      
 
         lattice_points = VGroup()
         for j in np.linspace(-3.5, 3.5, 7):
@@ -551,8 +552,12 @@ class pacman(Scene):
         self.play(Create(lattice_points))
         #self.add(rect_right, rect_left, rect_up, rect_down)
         self.wait(2)
+        self.add(box)
+        self.play(Create(text))
+        self.wait(2)
+        self.remove(text,box)
         
-        self.play(Create(openmouth), FadeOut(lattice_points[24]), runt_time = 3)
+        self.play(FadeOut(lattice_points[24]),Create(openmouth), runt_time = 1)
         self.wait()
         self.remove(openmouth)
         
@@ -592,7 +597,7 @@ class pacman(Scene):
         openmouthup = openmouth.copy()
         pacman = openmouthup
         self.add(pacman,square)
-        self.wait(2)
+    
         
         #self.remove(pacmanleft)
         y = 0
@@ -603,7 +608,8 @@ class pacman(Scene):
         epp_y = 7
         epn_y = 21
         
-        self.play(Rotate(pacman, angle = PI/2, rate_func = linear), run_time = 1)
+        self.play(Rotate(pacman, angle = PI/2, rate_func = linear))
+        
         
         pacmand = pacman.copy().move_to([0,-8,0])
         for i in range(40):
@@ -626,3 +632,10 @@ class pacman(Scene):
             pacmand = openmouthup.copy() if i%2 == 0 else closedmouth.copy()
             pacman.move_to(newpacman)
             pacmand.move_to(newpacmand)
+
+        self.add(openmouthup,square)
+        self.wait(2)
+        
+        self.play(FadeOut(openmouthup))
+        self.clear()
+
