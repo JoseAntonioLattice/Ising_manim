@@ -658,3 +658,27 @@ class pacman(Scene):
         self.play(FadeOut(openmouthup))
         self.clear()
 
+class en_graph(Scene):
+    def construct(self):
+
+        coords = VGroup()
+        samples = 10
+        x = np.linspace(1, 10, samples)
+        en = np.random.normal(0, 1, samples)*0.1
+        y = 1/x + en
+    
+        ax = Axes(
+              x_range = [0, 10, 1],
+              y_range = [0, 1, 1],
+              tips = False,
+              axis_config = {'include_numbers': True},
+              )
+
+        self.add(ax)
+        
+        for i in range(samples):
+            coord = Dot(ax.c2p(i, y[i]), color = GREEN)
+            coords += coord
+            self.add(coords)
+            self.wait()
+        
