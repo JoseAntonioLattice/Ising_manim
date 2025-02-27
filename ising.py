@@ -6,9 +6,9 @@ from matplotlib.animation import FuncAnimation, PillowWriter
 
 
 
-Nthermalization = 10
+Nthermalization = 100
 n_array = np.arange(0,Nthermalization)
-beta = 2.0
+beta = 1/3.0
 
 frames = Nthermalization
 dim = L
@@ -23,10 +23,10 @@ grid[0] = spin
 pause_time = 0.1
 energy_array = []
 for n in range(Nthermalization):
-    #for i in range(L):
-    #    for j in range(L):
-    #        metropolis(spin,beta,[i,j])
-    hotstart(spin,L)
+    for i in range(L):
+        for j in range(L):
+            metropolis(spin,beta,[i,j])
+    #hotstart(spin,L)
     grid[n+1] = spin 
     '''plt.imshow(spin)
     plt.xticks([])
