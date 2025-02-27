@@ -35,7 +35,7 @@ def energy(spin):
     for i in range(L):
         for j in range(L):
             energy += spin[i,j]*(spin[i,ip[j]]+spin[ip[i],j])
-    return energy/L**2
+    return -energy/L**2
     
 
 
@@ -659,6 +659,7 @@ class pacman(Scene):
         self.clear()
 
 
+
 def draw_conf(s):
     group_sq = VGroup()
     for i in range(L):
@@ -714,5 +715,53 @@ class evolution(Scene):
 
         
 
+
+class en_graph(Scene):
+    def construct(self):
+
+        confs = np.load("configurations.npy")
+        coords = VGroup()
+        samples = 100
+        x = np.arange(1, samples, 1)
+        en = [energy(confs[i]) for i in range(len(confs))] #np.random.rand(samples)
+        y =  en
+    
+        ''' ax = Axes(
+              x_range = [0, samples, 10],
+              y_range = [0, 1, 1],
+              tips = False,
+              axis_config = {'include_numbers': True},
+              )
+
+        self.add(ax)
+       '''
+        plane = Axes(
+            x_range = (0, len(confs),10),
+            y_range = (-2,1,0.2),
+            x_length = 7,
+            y_length = 7,
+            axis_config={"include_numbers": True},
+            tips=False
+        )
+        self.add(plane)
+        plane.center()
+        for i in range(len(confs)):
+            
+            line_graph = plane.plot_line_graph(
+                x_values = x[0:i+1],
+                y_values = y[0:i+1],
+                line_color=GOLD_E,
+                vertex_dot_style=dict(stroke_width=0,  fill_color=PURPLE),
+                #stroke_width = 4,
+            )
+            self.add(line_graph)
+            self.wait(0.1)
+            self.remove(line_graph)
         
-        
+        '''for i in range(samples):
+            coord = Dot(ax.c2p(i, y[i]), color = GREEN)
+            coords += coord
+            self.add(coords)
+            self.wait(0.1)
+        '''
+
