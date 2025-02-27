@@ -658,3 +658,61 @@ class pacman(Scene):
         self.play(FadeOut(openmouthup))
         self.clear()
 
+
+def draw_conf(s):
+    group_sq = VGroup()
+    for i in range(L):
+        for j in range(L):
+            #x_r = np.random.choice(x_a)
+            #y_r = np.random.choice(x_a)
+            #r = np.random.rand()
+            
+            if s[i,j] == 1:
+                color = RED
+                y_r_d = j + 0.5
+            else:
+                color = BLUE
+                y_r_d = j - 0.5
+            
+            sq=Square(side_length=1,color = color, fill_opacity=1).move_to([i-L/2,j-L/2,0])
+            group_sq += sq
+    group_sq.scale(0.5)            
+    return group_sq
+        
+class evolution(Scene):
+    def construct(self):
+
+        spin = np.zeros((Nconfs,L,L))
+        confs = np.load("configurations.npy")
+
+        spin = confs
+        E = np.random.rand(11)
+        coords = []
+        dots = VGroup()
+        
+        for i in range(len(spin)):
+            ax = Axes(
+                x_range=[0, 10, 1],
+                y_range=[0, 1, 1],
+                tips=False,
+                axis_config={"include_numbers": True}
+            )
+            
+            # x_min must be > 0 because log is undefined at 0.
+            
+            #self.add(ax, graph)dots = VGroup()
+            #c = draw_conf(spin[i])
+            #self.add(c)
+            #self.wait(0.5)
+            #self.remove(c)
+            #coords.append(x)
+            dots += Dot(radius=0.1,point=[i,E[i],0])
+            self.add(ax,dots)
+            self.wait(0.5)
+        
+        
+
+        
+
+        
+        
