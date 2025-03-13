@@ -331,6 +331,51 @@ class configurations(Scene):
         self.play(FadeOut(squares_2,confs_2,cont))
         self.play(cf.animate.move_to([0,0,0]).scale(L/4),sqf.animate.move_to([0,0,0]).scale(L/4),run_time = 3)
 
+
+class configurations2(Scene):
+    def construct(self):
+
+        spin = np.zeros((Nconfs,L,L))
+        spin = np.load("configurations.npy")
+        
+
+        squares = VGroup()
+        confs = VGroup()
+
+        k = 0
+        for j in [1,-1]:
+            for i in [-1, 0, 1]:
+                sq = Square(3).move_to([0,0,0])
+                #hotstart(spin,L)
+                lat = draw_lattice2(spin[k]).scale(3/L).move_to([0,0,0])
+                squares += sq
+                confs += lat
+                self.add(squares[k].to_edge([i,j,0]),confs[k].to_edge([i,j,0]))
+                k += 1
+
+        self.wait(0.5)
+        for n in range(6):
+            self.remove(confs[n])
+            
+    
+
+        for l in range(10):
+            for j in [1,-1]:
+                for i in [-1, 0, 1]:    
+                    #hotstart(spin,L)
+                    lat = draw_lattice2(spin[k]).scale(3/L).move_to([0,0,0])
+                    confs += lat
+                    self.add(confs[k].to_edge([i,j,0]))
+            
+                    k += 1
+
+            self.wait(0.5)
+            for n in [k-6,k-5,k-4,k-3,k-2,k-1]:
+                self.remove(confs[n])
+    
+            
+        
+
 class choose_point(Scene):
     def construct(self):
 
@@ -691,10 +736,10 @@ class evolution(Scene):
         coords = []
         dots = VGroup()
         
-        for i in range(len(spin)):
+        for i in range(len(E)):
             ax = Axes(
                 x_range=[0, 10, 1],
-                y_range=[0, 1, 1],
+                y_range=[0, 1, 0.1],
                 tips=False,
                 axis_config={"include_numbers": True}
             )
