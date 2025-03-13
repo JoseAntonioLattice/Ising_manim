@@ -585,6 +585,27 @@ def draw_lattice2(s):
                 
     return group_arrow
 
+
+def draw_lattice3(s):
+    group_sq = VGroup()
+    for i in range(L):
+        for j in range(L):
+            #x_r = np.random.choice(x_a)
+            #y_r = np.random.choice(x_a)
+            #r = np.random.rand()
+            
+            if s[i,j] == 1:
+                color = RED
+                y_r_d = j + 0.5
+            else:
+                color = BLUE
+                y_r_d = j - 0.5
+            
+            sq = Square(color = color).move_to([i,j,0])
+            group_sq += sq
+                
+    return group_sq
+
 class pacman(Scene):
     def construct(self):
 
@@ -714,13 +735,13 @@ def draw_conf(s):
             #r = np.random.rand()
             
             if s[i,j] == 1:
-                color = RED
+                color = BLUE#"#74ee15" #green  #"#ffe700" #yellow
                 y_r_d = j + 0.5
             else:
-                color = BLUE
+                color = RED#"#f000ff" #purple
                 y_r_d = j - 0.5
             
-            sq=Square(side_length=1,color = color, fill_opacity=1).move_to([i-L/2,j-L/2,0])
+            sq=Square(side_length=1,color = color, fill_opacity=0.8, ).move_to([i-L/2,j-L/2,0])
             group_sq += sq
     group_sq.scale(0.5)            
     return group_sq
@@ -780,28 +801,35 @@ class en_graph(Scene):
 
         self.add(ax)
        '''
+
+        
         plane = Axes(
             x_range = (0, len(confs),10),
-            y_range = (-2,1,0.2),
+            y_range = (-2,0.4,0.2),
             x_length = 7,
             y_length = 7,
             axis_config={"include_numbers": True},
             tips=False
         )
-        self.add(plane)
-        plane.center()
-        for i in range(len(confs)):
-            
+        
+        plane.scale(0.8).to_edge([1,0,0])
+        labels = plane.get_axis_labels(Tex("sweeps").scale(0.8),Tex("energy density").scale(0.8))
+        self.add(plane,labels)
+        #plane.center()
+        for i in range(20):
+            lat = draw_conf(confs[i]).scale(1.2).move_to([0,0,0])
             line_graph = plane.plot_line_graph(
                 x_values = x[0:i+1],
                 y_values = y[0:i+1],
-                line_color=GOLD_E,
-                vertex_dot_style=dict(stroke_width=0,  fill_color=PURPLE),
+                line_color="#ffff66",
+                #vertex_dot_style=dict(stroke_width=0,  fill_color=PURPLE),
+                add_vertex_dots =False
                 #stroke_width = 4,
             )
-            self.add(line_graph)
+        
+            self.add(line_graph,lat.to_edge([-1,0,0]))
             self.wait(0.1)
-            self.remove(line_graph)
+            self.remove(line_graph,lat)
         
         '''for i in range(samples):
             coord = Dot(ax.c2p(i, y[i]), color = GREEN)
